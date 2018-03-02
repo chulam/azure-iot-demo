@@ -1,0 +1,127 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build:aggregator",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/aggregator/aggregator.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish:aggregator",
+            "command": "dotnet",
+            "type": "process",
+            "dependsOn": [
+                "build:aggregator"
+            ],
+            "args": [
+                "publish",
+                "${workspaceFolder}/aggregator/aggregator.csproj",
+                "-c",
+                "Debug"
+            ],
+            "windows": {
+                "args": [
+                    "-o",
+                    "${workspaceFolder}\\aggregator\\bin\\Debug\\netcoreapp1.1\\publish"
+                ]
+            },
+            "linux": {
+                "args": [
+                    "-o",
+                    "${workspaceFolder}/aggregator/bin/Debug/netcoreapp1.1/publish"
+                ]
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build:temp-historian",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/temp-historian/temp-historian.csproj"
+            ]
+        },
+        {
+            "label": "publish:temp-historian",
+            "command": "dotnet",
+            "type": "process",
+            "dependsOn": [
+                "build:temp-historian"
+            ],
+            "args": [
+                "publish",
+                "${workspaceFolder}/temp-historian/temp-historian.csproj",
+                "-c",
+                "Debug"
+            ],
+            "windows": {
+                "args": [
+                    "-o",
+                    "${workspaceFolder}\\temp-historrian\\bin\\Debug\\netcoreapp1.1\\publish"
+                ]
+            },
+            "linux": {
+                "args": [
+                    "-o",
+                    "${workspaceFolder}/temp-historian/bin/Debug/netcoreapp1.1/publish"
+                ]
+            }
+        },
+        {
+            "label": "publish",
+            "dependsOn": [
+                "publish:aggregator",
+                "publish:temp-historian"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "run",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker-compose.exe up"
+            },
+            "linux": {
+                "command": "docker-compose up"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "debug",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker-compose.exe -f docker-compose.debug.yml up"
+            },
+            "linux": {
+                "command": "docker-compose -f docker-compose.debug.yml up"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "stop",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker-compose.exe down"
+            },
+            "linux": {
+                "command": "docker-compose down"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

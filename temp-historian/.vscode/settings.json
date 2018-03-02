@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "dockerfile.*": "dockerfile",
+        "docker-compse.*": "yml"
+    }
+}

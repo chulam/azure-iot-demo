@@ -1,0 +1,129 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/temp-historian.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "dependsOn": [
+                "build"
+            ],
+            "type": "process",
+            "args": [
+                "publish",
+                "-c",
+                "Debug"
+            ],
+            "windows": {
+                "args": [
+                    "-o",
+                    "${workspaceFolder}\\bin\\Debug\\netcoreapp1.1\\publish"
+                ]
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:clean",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker.exe rmi $(docker.exe images -f dangling=true -q)"
+            },
+            "linux": {
+                "command": "docker rmi $(docker images -f dangling=true -q)"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:publish",
+            "type": "shell",
+            "dependsOn": [
+                "publish"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                
+                "command": "docker.exe build -f '${workspaceFolder}\\Dockerfile' -t temp-historian:latest '${workspaceFolder}\\.'"
+            },
+            "linux": {
+                "command": "docker build -f '${workspaceFolder}/Dockerfile' -t temp-historian:latest '${workspaceFolder}/.'"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:build",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker.exe build -f '${workspaceFolder}\\Dockerfile.debug' -t temp-historian:debug '${workspaceFolder}\\.'"
+            },
+            "linux": {
+                "command": "docker build -f '${workspaceFolder}/Dockerfile.debug' -t temp-historian:debug '${workspaceFolder}/.'"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:stop",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker.exe kill temp-historian"
+            },
+            "linux": {
+                "command": "docker kill temp-historian"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:debug",
+            "dependsOn": [
+                "docker:build"
+            ],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker.exe run --rm -e REMOTE_DEBUGGING=1 --name temp-historian -p 5000:5000 -d temp-historian:debug"
+            },
+            "linux": {
+                "command": "docker run --rm -e REMOTE_DEBUGGING=1 --name temp-historian -p 5000:5000 -d temp-historian:debug"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:run",
+            "dependsOn": [
+                "docker:publish"
+            ],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}",
+            },
+            "windows": {
+                "command": "docker.exe run --rm --name temp-historian -p 5000:5000 -d temp-historian:latest"
+            },
+            "linux": {
+                "command": "docker run --rm --name temp-historian -p 5000:5000 -d temp-historian:latest"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

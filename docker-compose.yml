@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  temp-historian:
+    image: temp-historian
+    container_name: temp-historian
+    build:
+      context: ./temp-historian
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+  aggregator:
+    image: aggregator
+    container_name: aggregator
+    build:
+      context: ./aggregator
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - TEMPHISTORIAN=http://temp-historian:5000

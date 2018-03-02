@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  aggregator:
+    image: aggregator:debug
+    build:
+      context: .
+      dockerfile: Dockerfile.debug
+    ports:
+      - "5001:5001"
+    environment:
+      - REMOTE_DEBUGGING

@@ -1,0 +1,76 @@
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: temp-historian-deployment
+  namespace: development
+spec:
+  replicas: 1
+  template:
+    metadata:
+      namespace: development
+      labels:
+        app: temp-historian
+    spec:
+      containers:
+      - name: temp-historian
+        image: chulam.azurecr.io/temp-historian
+        ports:
+        - containerPort: 5000
+          name: temp-historian
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temp-historian-service
+  namespace: development
+spec:
+  ports:
+  - port: 5000
+    protocol: TCP
+  selector:
+    app: temp-historian
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: aggregator-deployment
+  namespace: development
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      namespace: development
+      labels:
+        app: aggregator
+    spec:
+      containers:
+      - name: aggregator
+        image: chulam.azurecr.io/aggregator
+        ports:
+        - containerPort: 5001
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+        env:
+        - name: TEMPHISTORIAN
+          value: http://temp-historian-service.development.svc.cluster.local:5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aggregator-service
+  namespace: development
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5001
+  selector:
+    app: aggregator

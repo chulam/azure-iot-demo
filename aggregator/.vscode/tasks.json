@@ -1,0 +1,129 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/aggregator.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "dependsOn": [
+                "build"
+            ],
+            "type": "process",
+            "args": [
+                "publish",
+                "-c",
+                "Debug"
+            ],
+            "windows": {
+                "args": [
+                    "-o",
+                    "${workspaceFolder}\\bin\\Debug\\netcoreapp1.1\\publish"
+                ]
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:clean",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker.exe rmi $(docker.exe images -f dangling=true -q)"
+            },
+            "linux": {
+                "command": "docker rmi $(docker images -f dangling=true -q)"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:publish",
+            "type": "shell",
+            "dependsOn": [
+                "publish"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                
+                "command": "docker.exe build -f '${workspaceFolder}\\Dockerfile' -t aggregator:latest '${workspaceFolder}\\.'"
+            },
+            "linux": {
+                "command": "docker build -f '${workspaceFolder}/Dockerfile' -t aggregator:latest '${workspaceFolder}/.'"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:build",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker.exe build -f '${workspaceFolder}\\Dockerfile.debug' -t aggregator:debug '${workspaceFolder}\\.'"
+            },
+            "linux": {
+                "command": "docker build -f '${workspaceFolder}/Dockerfile.debug' -t aggregator:debug '${workspaceFolder}/.'"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:stop",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker.exe kill aggregator"
+            },
+            "linux": {
+                "command": "docker kill aggregator"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:debug",
+            "dependsOn": [
+                "docker:build"
+            ],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "windows": {
+                "command": "docker.exe run --rm -e REMOTE_DEBUGGING=1 --name aggregator -p 5001:5001 -d aggregator:debug"
+            },
+            "linux": {
+                "command": "docker run --rm -e REMOTE_DEBUGGING=1 --name aggregator -p 5001:5001 -d aggregator:debug"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker:run",
+            "dependsOn": [
+                "docker:publish"
+            ],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}",
+            },
+            "windows": {
+                "command": "docker.exe run --rm --name aggregator -p 5001:5001 -d aggregator:latest"
+            },
+            "linux": {
+                "command": "docker run --rm --name aggregator -p 5001:5001 -d aggregator:latest"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

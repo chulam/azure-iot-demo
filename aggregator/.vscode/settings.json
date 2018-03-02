@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "dockerfile.*": "dockerfile",
+        "docker-compse.*": "yml"
+    },
+    "workbench.editor.enablePreviewFromQuickOpen": false
+}

@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  temp-historian:
+    image: temp-historian:debug
+    container_name: temp-historian
+    build:
+      context: ./temp-historian
+      dockerfile: Dockerfile.debug
+    ports:
+      - "5000:5000"
+  aggregator:
+    image: aggregator:debug
+    container_name: aggregator
+    build:
+      context: ./aggregator
+      dockerfile: Dockerfile.debug
+    ports:
+      - "5001:5001"
+    environment:
+      - REMOTE_DEBUGGING=1
+      - TEMPHISTORIAN=http://temp-historian:5000

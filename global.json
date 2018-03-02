@@ -1,0 +1,10 @@
+{
+  "projects": [ 
+    "aggregator",
+    "temp-historian" 
+  ],
+  "sdk": {
+    "version": "1.1.7",
+    "runtime": "coreclr"
+  }
+}

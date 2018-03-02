@@ -1,0 +1,31 @@
+FROM microsoft/dotnet:1.1-sdk AS build
+ENV NUGET_XMLDOC_MODE=skip 
+
+# Copying source files into container, build and publish it
+WORKDIR /app
+
+COPY *.csproj .
+RUN dotnet restore
+
+COPY . .
+RUN dotnet build
+
+FROM build AS publish
+WORKDIR /app
+RUN dotnet publish -c Debug -o out
+
+# Build the runtime image
+FROM microsoft/aspnetcore:1.1
+WORKDIR /vsdbg
+
+# Installing vsdbg debbuger into our container 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        unzip \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -SL https://aka.ms/getvsdbgsh | bash /dev/stdin -v latest -l /vsdbg
+
+WORKDIR /app
+COPY --from=publish /app ./
+EXPOSE 5001
+ENTRYPOINT ["/bin/bash", "-c", "if [ -z \"$REMOTE_DEBUGGING\" ]; then dotnet out/Aggregator.dll; else sleep infinity; fi"]
